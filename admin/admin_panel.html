@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin Panel - Visa Sponsorship Applications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            color: #333 !important;
+            font-weight: 700;
+        }
+        .navbar-brand small {
+            font-size: 0.7em;
+            display: block;
+            line-height: 1;
+        }
+        .navbar-nav .nav-link {
+            color: #555 !important;
+            font-weight: 500;
+        }
+        .navbar-nav .nav-link.active,
+        .navbar-nav .nav-link:hover {
+            color: #1766d9 !important;
+        }
+        .dashboard-main-content {
+            margin-top: 90px;
+            padding: 20px;
+            max-width: 2200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .dashboard-card {
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+        .card-approved {
+            background: linear-gradient(to right, #4CAF50, #8bc34a);
+        }
+        .card-pending {
+            background: linear-gradient(to right, #ff9800, #ffc107);
+        }
+        .card-revenue {
+            background: #ffffff;
+            color: #333;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+        .chart-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 8px solid #ddd;
+            border-top-color: #1766d9;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #1766d9;
+        }
+        .loan-request-section {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-top: 20px;
+        }
+        .loan-request-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .loan-request-title i {
+            font-size: 2rem;
+            color: #1766d9;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table {
+            min-width: 2400px;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        .table thead th {
+            border-bottom: 2px solid #dee2e6;
+            padding: 15px 10px;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            background-color: #f8f9fa;
+        }
+        .table tbody tr {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+        .table tbody tr:hover {
+            transform: translateY(-3px);
+        }
+        .table tbody td {
+            padding: 15px 10px;
+            vertical-align: middle;
+            border-top: none;
+            border-bottom: none;
+            white-space: nowrap;
+        }
+        .table tbody tr td:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        .table tbody tr td:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        .btn-approve {
+            background-color: #28a745;
+            border: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+        .btn-approve:hover {
+            background-color: #218838;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+            border: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+        .btn-reject:hover {
+            background-color: #c82333;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-approved { background-color: #d4edda; color: #155724; }
+        .status-rejected { background-color: #f8d7da; color: #721c24; }
+        .status-progress-1, .status-progress-2, .status-progress-3 {
+            background-color: #cfe2ff;
+            color: #084298;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+        }
+        .footer-bottom {
+            background-color: #343a40;
+            color: #fff;
+            padding: 30px 0;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .footer-bottom .col-md-4 {
+            margin-bottom: 20px;
+        }
+        .footer-bottom h5 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .footer-bottom p, .footer-bottom a {
+            color: #bbb;
+            text-decoration: none;
+        }
+        .footer-bottom a:hover {
+            color: #fff;
+        }
+        .footer-bottom ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-bottom ul li {
+            margin-bottom: 8px;
+        }
+        .footer-bottom .contact-info i {
+            margin-right: 10px;
+            color: #1766d9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="pages/index.html">
+                <img src="/pages/stylish/images/logo.png" style="width: 40px; height: 40px;" alt="Visa Sponsorship Logo">
+                <span>VisaFind<br><small>Visa Sponsorship Admin</small></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="mainNav">
+                <ul class="navbar-nav gap-3">
+                    <li class="nav-item"><a class="nav-link" href="admin_panel.html"> <i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" id="adminProfileLink"><i class="bi bi-person-circle"></i> Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Panel Content -->
+    <div class="dashboard-main-content">
+        <div id="notLoggedIn" class="alert alert-warning text-center" style="display: none;">
+            You must <a href="admin_login.html">login as admin</a> to access this panel.
+        </div>
+        <div id="adminContent" style="display: none;">
+            <!-- Dashboard Cards -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="dashboard-card card-approved">
+                        <div>
+                            <div class="card-title">Approved Applications</div>
+                            <div class="card-value" id="approvedLoansCount">0</div>
+                        </div>
+                        <i class="bi bi-patch-check-fill" style="font-size: 3rem;"></i>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card card-pending">
+                        <div>
+                            <div class="card-title">Pending Applications</div>
+                            <div class="card-value" id="pendingLoansCount">0</div>
+                        </div>
+                        <i class="bi bi-hourglass-split" style="font-size: 3rem;"></i>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card card-revenue">
+                        <div>
+                            <div class="card-title">Monthly Approval Rate</div>
+                            <div class="chart-placeholder">45%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application List Section -->
+            <div class="loan-request-section mt-4">
+                <h3 class="loan-request-title"><i class="bi bi-graph-up-arrow"></i> ALL VISA/SPONSORSHIP APPLICATIONS</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S/N</th>
+                                <th>Applicant Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>DOB</th>
+                                <th>Marital Status</th>
+                                <th>Occupation</th>
+                                <th>Employer/School</th>
+                                <th>Country</th>
+                                <th>Province/State/Region</th>
+                                <th>ID Type</th>
+                                <th>ID/Passport No</th>
+                                <th>Destination Country</th>
+                                <th>Purpose</th>
+                                <th>Arrival Date</th>
+                                <th>Duration (Months)</th>
+                                <th>Sponsorship Offer</th>
+                                <th style="min-width:120px">Credential</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loanTable">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                    <p id="noLoans" class="text-center text-muted mt-3" style="display: none;">No applications found.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 text-start">
+                    <h5>OUR MISSION</h5>
+                    <p>Connecting talents and professionals worldwide to global visa and sponsorship opportunities.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>OUR SERVICES</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Visa Sponsorship</a></li>
+                        <li><a href="#">Job Placement</a></li>
+                        <li><a href="#">Scholarship Finder</a></li>
+                        <li><a href="#">Conference Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-end contact-info">
+                    <h5>CONTACT US</h5>
+                    <p><i class="bi bi-envelope"></i> support@visafind.com</p>
+                    <p><i class="bi bi-globe"></i> www.visafind.com</p>
+                    <p><i class="bi bi-geo-alt"></i> 123 International Plaza, Global City, World</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase + Logic -->
+    <script>
+       const firebaseConfig = {
+        apiKey: "AIzaSyDO5Bpeg0Ewg6lUzbIaI-Kp4wC9ET6OQfE",
+        authDomain: "visasponsor-e62c2.firebaseapp.com",
+        projectId: "visasponsor-e62c2",
+        storageBucket: "visasponsor-e62c2.firebasestorage.app",
+        messagingSenderId: "179101134570",
+        appId: "1:179101134570:web:bea801f12c1a620717b193",
+        measurementId: "G-NE7T0PPG6K"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loanTable = document.getElementById('loanTable');
+            const approvedLoansCount = document.getElementById('approvedLoansCount');
+            const pendingLoansCount = document.getElementById('pendingLoansCount');
+            const noLoansMessage = document.getElementById('noLoans');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const adminProfileLink = document.getElementById('adminProfileLink');
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    try {
+                        await auth.signOut();
+                        window.location.href = '/admin_login.html';
+                    } catch (error) {
+                        alert('Failed to log out. Please try again.');
+                    }
+                });
+            }
+
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    document.getElementById('adminContent').style.display = 'none';
+                    document.getElementById('notLoggedIn').style.display = 'block';
+                } else {
+                    try {
+                        const userRoleDoc = await db.collection('userRoles').doc(user.uid).get();
+                        const userRole = userRoleDoc.exists ? userRoleDoc.data().role : 'user';
+                        if (userRole === 'admin') {
+                            document.getElementById('adminContent').style.display = 'block';
+                            document.getElementById('notLoggedIn').style.display = 'none';
+                            if (adminProfileLink) {
+                                adminProfileLink.href = `/pages/admin_profile.html?uid=${user.uid}`;
+                            }
+                            fetchAllApplications();
+                        } else {
+                            document.getElementById('adminContent').style.display = 'none';
+                            document.getElementById('notLoggedIn').style.display = 'block';
+                            document.getElementById('notLoggedIn').innerHTML = 'You do not have admin access. Please <a href="index.html">login with admin credentials</a>.';
+                        }
+                    } catch (error) {
+                        document.getElementById('adminContent').style.display = 'none';
+                        document.getElementById('notLoggedIn').style.display = 'block';
+                        document.getElementById('notLoggedIn').innerHTML = 'An error occurred checking your access. Please try again or <a href="admin_login.html">login</a>.';
+                    }
+                }
+            });
+
+            async function fetchAllApplications() {
+                loanTable.innerHTML = '';
+                let approvedCount = 0;
+                let pendingCount = 0;
+                let serialNumber = 1;
+
+                try {
+                    const querySnapshot = await db.collection('loanApplications').get();
+                    const applications = [];
+
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        applications.push({ id: doc.id, ...data });
+                        if (data.status === 'Approved') {
+                            approvedCount++;
+                        } else if (data.status === 'Pending' || (!data.status && data.progress < 4)) {
+                            pendingCount++;
+                        }
+                    });
+
+                    approvedLoansCount.textContent = approvedCount.toLocaleString();
+                    pendingLoansCount.textContent = pendingCount.toLocaleString();
+
+                    if (applications.length === 0) {
+                        noLoansMessage.style.display = 'block';
+                    } else {
+                        noLoansMessage.style.display = 'none';
+                        applications.forEach(app => {
+                            const fullName = `${app.surname || ''} ${app.firstname || ''} ${app.othername || ''}`.trim();
+                            const applicantName = fullName || app.email || 'N/A';
+                            const email = app.email || 'N/A';
+                            const phone = app.phone || 'N/A';
+                            const address = app.address || 'N/A';
+                            const dob = app.dob || 'N/A';
+                            const maritalStatus = app.maritalStatus || 'N/A';
+                            const occupation = app.occupation || 'N/A';
+                            const employerOrSchool = app.employerOrSchool || 'N/A';
+                            const country = app.country || 'N/A';
+                            const province = app.province || 'N/A';
+                            const passportType = app.passportType || 'N/A';
+                            const passportNumber = app.passportNumber || 'N/A';
+                            const destinationCountry = app.destinationCountry || 'N/A';
+                            const travelPurpose = app.travelPurpose || 'N/A';
+                            const intendedArrival = app.intendedArrival ? new Date(app.intendedArrival).toLocaleDateString() : 'N/A';
+                            const durationOfStay = app.durationOfStay || 'N/A';
+                            const sponsorshipType = sponsorshipLabel(app.sponsorshipType) || 'N/A';
+
+                            // Credential column
+                            let credCol = "";
+                            if (app.credentialsUploaded && app.credentialsUrl) {
+                              if (app.credentialsUrl.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                                credCol = `<a href="${app.credentialsUrl}" target="_blank"><img src="${app.credentialsUrl}" style="max-width:60px;max-height:40px;border-radius:4px;margin-bottom:4px"></a><br>`;
+                              }
+                              credCol += `<a href="${app.credentialsUrl}" target="_blank" class="btn btn-outline-primary btn-sm">View</a>`;
+                              if (app.credentialsType) credCol += `<div class="small text-muted">${app.credentialsType}</div>`;
+                            } else {
+                              credCol = `<span class="badge bg-secondary">Not Uploaded</span>`;
+                            }
+
+                            let displayStatus = app.status || 'N/A';
+                            let statusClass = 'status-pending';
+                            if (app.status) {
+                                statusClass = `status-${app.status.toLowerCase()}`;
+                            } else if (app.progress === 1) {
+                                displayStatus = 'Bio Data Step';
+                                statusClass = 'status-progress-1';
+                            } else if (app.progress === 2) {
+                                displayStatus = 'Application Details Step';
+                                statusClass = 'status-progress-2';
+                            } else if (app.progress === 3) {
+                                displayStatus = 'Review Step';
+                                statusClass = 'status-progress-3';
+                            } else if (app.progress === 4 && !app.status) {
+                                displayStatus = 'Submitted (Pending)';
+                                statusClass = 'status-pending';
+                            }
+
+                            // Payment Amount input (ADMIN EDITABLE)
+                            const paymentAmount = app.amountToPay || app.paymentAmount || '';
+                            const paymentInputId = `payamt_${app.id}`;
+                            const paymentSaveBtnId = `saveamt_${app.id}`;
+
+                            const paymentEditHtml = `
+                                <div class="input-group input-group-sm mb-1" style="max-width:120px;">
+                                    <input type="number" min="0" class="form-control" id="${paymentInputId}" placeholder="Amount" value="${paymentAmount}">
+                                    <button class="btn btn-outline-success" id="${paymentSaveBtnId}" title="Save Amount"><i class="bi bi-save"></i></button>
+                                </div>
+                                <div class="small text-muted">USD</div>
+                            `;
+
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${serialNumber++}</td>
+                                <td>${applicantName}</td>
+                                <td>${email}</td>
+                                <td>${phone}</td>
+                                <td>${address}</td>
+                                <td>${dob}</td>
+                                <td>${maritalStatus}</td>
+                                <td>${occupation}</td>
+                                <td>${employerOrSchool}</td>
+                                <td>${country}</td>
+                                <td>${province}</td>
+                                <td>${passportType}</td>
+                                <td>${passportNumber}</td>
+                                <td>${destinationCountry}</td>
+                                <td>${travelPurpose}</td>
+                                <td>${intendedArrival}</td>
+                                <td>${durationOfStay}</td>
+                                <td>${sponsorshipType}</td>
+                                <td>${credCol}</td>
+                                <td><span class="status-badge ${statusClass}">${displayStatus}</span></td>
+                                <td>
+                                    ${paymentEditHtml}
+                                    <button class="btn btn-approve btn-sm me-2" onclick="updateApplicationStatus('${app.id}', 'Approved')">Approve</button>
+                                    <button class="btn btn-reject btn-sm" onclick="updateApplicationStatus('${app.id}', 'Rejected')">Reject</button>
+                                </td>
+                            `;
+                            loanTable.appendChild(row);
+
+                            // Attach save event for payment amount
+                            setTimeout(() => {
+                                const saveBtn = document.getElementById(paymentSaveBtnId);
+                                const input = document.getElementById(paymentInputId);
+                                if (saveBtn && input) {
+                                    saveBtn.onclick = async () => {
+                                        const newAmt = parseFloat(input.value);
+                                        if (isNaN(newAmt) || newAmt < 0) {
+                                            alert('Please enter a valid payment amount.');
+                                            return;
+                                        }
+                                        try {
+                                            await db.collection('loanApplications').doc(app.id).update({ amountToPay: newAmt });
+                                            alert('Payment amount updated.');
+                                        } catch (err) {
+                                            alert('Failed to update payment amount.');
+                                        }
+                                    };
+                                }
+                            }, 0);
+                        });
+                    }
+                } catch (error) {
+                    alert("Failed to load applications. Please check console for details.");
+                }
+            }
+
+            function sponsorshipLabel(val) {
+                const options = {
+                    "driver": "Driver - Switzerland, UK, US, Canada",
+                    "developer": "Full Stack Developer - Canada, USA, Hong Kong",
+                    "family": "Family Location (Visa + housing fee 60% covered)",
+                    "nurse": "Nurse - UK, US, Canada",
+                    "mechanic": "Auto Mechanic - London, UK",
+                    "caregiver": "Caregiver - USA",
+                    "canada_scholarship": "2025 Canada Graduate Scholarship",
+                    "uk_masters": "UK Masters Scholarship",
+                    "eu_phd": "EU Research Grant for PhD Students",
+                    "adb_asia": "Asian Development Bank Scholarship",
+                    "diplomat": "Best Diplomats - Global Youth Diplomat",
+                    "conference": "Conference Sponsorship"
+                };
+                return options[val] || val || "---";
+            }
+
+            window.updateApplicationStatus = async (docId, newStatus) => {
+                if (!window.confirm(`Are you sure you want to set this application to ${newStatus}?`)) {
+                    return;
+                }
+                try {
+                    const updateData = {
+                        status: newStatus,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    if (newStatus === 'Approved') {
+                        updateData.isApproved = true;
+                    } else if (newStatus === 'Rejected') {
+                        updateData.isApproved = false;
+                    }
+                    await db.collection('loanApplications').doc(docId).update(updateData);
+                    alert(`Application ${docId} ${newStatus.toLowerCase()} successfully!`);
+                    fetchAllApplications();
+                } catch (error) {
+                    alert(`Failed to update status to ${newStatus}. Error: ${error.message}`);
+                }
+            };
+
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

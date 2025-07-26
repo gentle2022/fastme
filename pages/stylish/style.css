@@ -1,0 +1,221 @@
+ :root {
+            --primary-dark-bg: #1a1a2e;
+            --secondary-dark-bg: #16213e;
+            --accent-color-1: #e94560;
+            --accent-color-2: #e94560;
+            --text-light: #e0e0e0;
+            --gradient-bg: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #e94560 100%);
+            /* Placeholder gradient */
+        }
+body {
+  background: 
+    linear-gradient(180deg, #3a277cdd 0%, #000a 100%),
+    url('/pages/stylish/images/background.jpg') center/cover no-repeat;
+  color: #fff;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background-blend-mode: overlay;
+}
+
+.hero {
+  background: url('city-bg.jpg') center/cover no-repeat;
+  min-height: 600px;
+  position: relative;
+}
+
+.hero .overlay {
+  background: linear-gradient(180deg, #3a277cdd 0%, #000a 100%);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  top: 0;
+  left: 0;
+}
+
+.hero .content {
+  z-index: 2;
+  position: relative;
+  padding-bottom: 0;
+}
+
+.hero h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.hero .desc {
+  font-size: 1.1em;
+  margin-bottom: 30px;
+}
+
+.vision-mission > div {
+  background: rgba(255, 255, 255, 0.13);
+  border-radius: 10px;
+  backdrop-filter: blur(1px);
+}
+
+.hero-img {
+  z-index: 2;
+  width: 300px;
+}
+
+/* Responsive tweaks (Bootstrap handles most) */
+@media (max-width: 991px) {
+  .hero-img {
+    display: none !important;
+  }
+}
+
+.modal-backdrop.show {
+  opacity: 0.63;
+  background: #2a2062;
+}
+
+.nav-item a {
+  color: white;
+  font-size: 18;
+}
+
+.nav-item :hover {
+  color: white;
+  font-size: 18;
+  text-decoration: underline;
+  padding: 2px 2px;
+  border-radius: 12px;
+}
+
+/* Fix navbar background for mobile */
+@media (max-width: 768px) {
+  .navbar {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    position: relative !important;
+  }
+}
+
+.ms-3{
+  color: #fff;
+}
+
+/* General Section Styling */
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-color-1);
+            /* Use accent color for titles */
+            margin-bottom: 40px;
+        }
+
+        section {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+
+        .bg-light {
+            background-color: var(--secondary-dark-bg) !important;
+            color: var(--text-light);
+        }
+
+        .card {
+            background-color: var(--secondary-dark-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            color: var(--text-light);
+            font-weight: bold;
+        }
+
+        .card-text {
+            color: #a0a0a0;
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        
+
+        /* How It Works section styling */
+        #how-it-works h5 {
+            color: var(--accent-color-1);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        #how-it-works p {
+            color: #a0a0a0;
+        }
+
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-dark-bg) !important;
+            color: #6c757d !important;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        footer small {
+            color: #6c757d;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+
+            .hero-content {
+                padding-left: 0;
+                text-align: center;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .vertical-nav {
+                display: none;
+                /* Hide vertical nav on smaller screens */
+            }
+
+            .navbar-custom .navbar-nav {
+                background-color: var(--secondary-dark-bg);
+                /* Add background for collapsed menu */
+                padding: 15px;
+                border-radius: 8px;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons .btn {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+/* --- IMPORTANT CHANGE --- */
+/* Override padding specifically for the #jobs section to reduce its top space */
+#jobs {
+  background: rgba(0, 0, 0, 0.71);
+  padding-top: 50px; /* Reduced from 80px, adjust as needed */
+  padding-bottom: 60px; /* Keep or adjust this as needed for the bottom of the section */
+}
+
+/* ... rest of your CSS ... */

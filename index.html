@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visa & Scholarship Finder | Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        :root {
+            --primary-dark-bg: #1a1a2e;
+            --secondary-dark-bg: #16213e;
+            --accent-color-1: #e94560;
+            --accent-color-2: #e94560;
+            --text-light: #e0e0e0;
+            --gradient-bg: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #e94560 100%);
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--primary-dark-bg); color: var(--text-light); overflow-x: hidden; }
+        .navbar-custom { background-color: transparent !important; position: absolute; width: 100%; z-index: 1000; padding-top: 20px; padding-bottom: 20px; }
+        .navbar-custom .navbar-brand { color: var(--text-light) !important; font-weight: bold; font-size: 1.8rem; }
+        .navbar-custom .nav-link { color: var(--text-light) !important; margin-right: 15px; transition: color 0.3s ease; }
+        .navbar-custom .nav-link:hover { color: var(--accent-color-1) !important; }
+        .navbar-custom .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.5%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+        .navbar-custom .btn-primary { background-color: var(--accent-color-1); border-color: var(--accent-color-1); color: white !important; padding: 8px 20px; border-radius: 25px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .navbar-custom .btn-primary:hover { background-color: #c03952; border-color: #c03952; }
+        .hero-section { background: var(--gradient-bg); min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; padding: 0 5%; }
+        .hero-overlay { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 1; }
+        .hero-content { z-index: 2; position: relative; text-align: left; max-width: 800px; margin-right: auto; padding-left: 5%; }
+        .hero-content h1 { font-size: 4.5rem; font-weight: 900; line-height: 1.1; color: white; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
+        .hero-content p { font-size: 1.2rem; color: var(--text-light); margin-bottom: 30px; max-width: 600px; }
+        .hero-buttons .btn { padding: 12px 30px; border-radius: 50px; font-weight: bold; margin-right: 20px; transition: all 0.3s ease; }
+        .hero-buttons .btn-primary { background-color: var(--accent-color-1); border-color: var(--accent-color-1); color: white; }
+        .hero-buttons .btn-primary:hover { background-color: #c03952; border-color: #c03952; transform: translateY(-2px); }
+        .hero-buttons .btn-outline-light { color: white; border-color: white; background-color: rgba(255, 255, 255, 0.1); }
+        .hero-buttons .btn-outline-light:hover { background-color: rgba(255, 255, 255, 0.2); border-color: white; color: white; transform: translateY(-2px); }
+        .vertical-nav { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); z-index: 2; }
+        .vertical-nav .nav-item { margin-bottom: 15px; }
+        .vertical-nav .nav-link { display: block; width: 10px; height: 10px; background-color: rgba(255, 255, 255, 0.4); border-radius: 50%; transition: background-color 0.3s ease, transform 0.3s ease; }
+        .vertical-nav .nav-link:hover, .vertical-nav .nav-link.active { background-color: var(--accent-color-1); transform: scale(1.3); }
+        .section-title { font-size: 2.5rem; font-weight: bold; color: var(--accent-color-1); margin-bottom: 40px; }
+        section { padding-top: 80px; padding-bottom: 80px; }
+        .bg-light { background-color: var(--secondary-dark-bg) !important; color: var(--text-light); }
+        .card { background-color: var(--secondary-dark-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-light); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+        .card-title { color: var(--text-light); font-weight: bold; }
+        .card-text { color: #a0a0a0; }
+        .card-img-top { height: 200px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .btn-outline-primary { color: var(--accent-color-1); border-color: var(--accent-color-1); }
+        .btn-outline-primary:hover { background-color: var(--accent-color-1); color: white; border-color: var(--accent-color-1); }
+        .btn-outline-success { color: #28a745; border-color: #28a745; }
+        .btn-outline-success:hover { background-color: #28a745; color: white; border-color: #28a745; }
+        .btn-outline-dark { color: var(--text-light); border-color: var(--text-light); }
+        .btn-outline-dark:hover { background-color: var(--text-light); color: var(--primary-dark-bg); border-color: var(--text-light); }
+        #how-it-works h5 { color: var(--accent-color-1); font-weight: bold; margin-bottom: 15px; }
+        #how-it-works p { color: #a0a0a0; }
+        footer { background-color: var(--primary-dark-bg) !important; color: #6c757d !important; padding: 30px 0; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+        footer small { color: #6c757d; }
+        @media (max-width: 992px) {
+            .hero-content h1 { font-size: 3rem; }
+            .hero-content { padding-left: 0; text-align: center; margin-left: auto; margin-right: auto; }
+            .vertical-nav { display: none; }
+            .navbar-custom .navbar-nav { background-color: var(--secondary-dark-bg); padding: 15px; border-radius: 8px; margin-top: 10px; }
+        }
+        @media (max-width: 576px) {
+            .hero-content h1 { font-size: 2.5rem; }
+            .hero-buttons .btn { display: block; margin-right: 0; margin-bottom: 15px; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header / Navbar -->
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-transparent position-absolute w-100 px-lg-5 px-2" style="z-index: 3;">
+        <div class="container-fluid">
+          <a class="navbar-brand d-flex align-items-center gap-2" href="/index.html">
+            <img src="pages/stylish/images/logo.png" alt="VisaFind Logo" style="width: 40px; height: 40px;">
+            <span class="navbar-brand fw-bold">VisaFind</span>
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="mainNav">
+            <ul class="navbar-nav mb-2 mb-lg-0 gap-lg-5">
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="pages/services.html">Services</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="pages/contact.html">Contact Us</a>
+              </li>
+            </ul>
+            <!-- User avatar and dropdown will be injected here -->
+            <div id="navbarUser" class="ms-3"></div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <section class="hero-section" id="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="fw-bold">Find Visa & Scholarship Sponsorships</h1>
+            <p class="lead">
+                Hand crafting unique world most beautiful opportunities for your personal as well as commercial projects.
+                For a low cost of zero dollars and time.
+            </p>
+            <div class="hero-buttons">
+                <a href="#" class="btn btn-primary apply-button"><i class="fas fa-play me-2"></i> Start Building</a>
+                <a href="https://www.youtube.com/your-video-link" class="btn btn-outline-light"><i
+                            class="fas fa-play me-2"></i> Watch Intro</a>
+            </div>
+        </div>
+        <div class="vertical-nav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#hero-section" data-bs-toggle="tooltip" data-bs-placement="left"
+                        title="Home"></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#jobs" data-bs-toggle="tooltip" data-bs-placement="left"
+                        title="Jobs"></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#scholarships" data-bs-toggle="tooltip" data-bs-placement="left"
+                        title="Scholarships"></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#diplomats" data-bs-toggle="tooltip" data-bs-placement="left"
+                        title="Diplomats"></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#conferences" data-bs-toggle="tooltip" data-bs-placement="left"
+                        title="Conferences"></a>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="py-5" id="jobs">
+        <div class="container">
+            <h2 class="text-center section-title mb-4">Featured Jobs</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card shadow">
+                        <img src="https://plus.unsplash.com/premium_photo-1681821679118-bb069eeb2d98?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Nurse">
+                        <div class="card-body">
+                            <h5 class="card-title">Driver</h5>
+                            <h5 class="card-title">Location: Switzerland, UK, US, and Canada </h5>
+                            <p class="card-text">Visa sponsorship + relocation support included.</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm apply-loan-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow">
+                        <img src="https://plus.unsplash.com/premium_photo-1678565869434-c81195861939?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Developer">
+                        <div class="card-body">
+                            <h5 class="card-title">Full Stack Developer - Canada, USA, Hong Kong</h5>
+                            <p class="card-text">Remote job with relocation sponsorship.</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm apply-loan-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow">
+                        <img src="https://images.unsplash.com/photo-1683722174130-65608d9c2258?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Caregiver">
+                        <div class="card-body">
+                            <h5 class="card-title">Family Location</h5>
+                            <p class="card-text">Visa + housing fee will be 60% covered. Apply today!</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm apply-loan-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow">
+                        <img src="https://plus.unsplash.com/premium_photo-1673953509975-576678fa6710?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Nurse">
+                        <div class="card-body">
+                            <h5 class="card-title">Nurse </h5>
+                            <h5 class="card-title">Location: UK, US, and Canada </h5>
+                            <p class="card-text">Visa sponsorship + relocation support included.</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm apply-loan-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow">
+                        <img src="https://plus.unsplash.com/premium_photo-1658526934242-aa541776ca49?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Developer">
+                        <div class="card-body">
+                            <h5 class="card-title">Auto Mechanic - London, UK</h5>
+                            <p class="card-text"> Relocation sponsorship.</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm apply-loan-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow">
+                        <img src="https://plus.unsplash.com/premium_photo-1664475811964-75af7d90ee4b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Caregiver">
+                        <div class="card-body">
+                            <h5 class="card-title">Caregiver - USA</h5>
+                            <p class="card-text">Visa + housing fully covered. Apply today!</p>
+                            <a href="#" class="btn btn-outline-primary btn-sm apply-loan-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-light py-5" id="scholarships">
+        <div class="container">
+            <h2 class="text-center section-title mb-4">Scholarship Offers</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <img src="https://plus.unsplash.com/premium_photo-1683887034146-c79058dbdcb1?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Scholarship">
+                        <div class="card-body">
+                            <h5 class="card-title">2025 Canada Graduate Scholarship</h5>
+                            <p class="card-text">Full tuition + visa & accommodation support available.</p>
+                            <a href="" class="btn btn-outline-success btn-sm apply-scholarship-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <img src="https://images.unsplash.com/photo-1539413595691-37a09a48579b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Student">
+                        <div class="card-body">
+                            <h5 class="card-title">UK Masters Scholarship</h5>
+                            <p class="card-text">Partial sponsorship & monthly stipend provided.</p>
+                            <a href="" class="btn btn-outline-success btn-sm apply-scholarship-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <img src="https://images.unsplash.com/photo-1714321238450-05a69dfbf64c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Scholarship Europe">
+                        <div class="card-body">
+                            <h5 class="card-title">EU Research Grant for PhD Students</h5>
+                            <p class="card-text">Fully funded research positions in various European countries.</p>
+                            <a href="" class="btn btn-outline-success btn-sm apply-scholarship-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <img src="https://plus.unsplash.com/premium_photo-1661761077411-d50cba031848?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            class="card-img-top" alt="Scholarship Asia">
+                        <div class="card-body">
+                            <h5 class="card-title">Asian Development Bank Scholarship Program</h5>
+                            <p class="card-text">Scholarships for graduate studies in Asia and the Pacific.</p>
+                            <a href="" class="btn btn-outline-success btn-sm apply-scholarship-btn">Apply Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" id="diplomats">
+        <div class="container">
+            <h2 class="text-center section-title mb-4">Best Diplomats Sponsorship</h2>
+            <div class="card shadow mx-auto" style="max-width: 800px;">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQf-1J1R_vqtL5KQN2rqTnbKjT_AUbjOBlC8TkzqcYu4qy6EG0eOjB-3nzo5pFgkMrGEt8&usqp=CAU"
+                    class="card-img-top" alt="Diplomats">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Become a Global Youth Diplomat</h5>
+                    <p class="card-text">Join international leadership programs in the USA, Dubai, and Malaysia. Get 60%
+                        of the costs covered including visa, flight, and event access.</p>
+                    <a href="" class="btn btn-outline-dark btn-sm apply-diplomat-btn">Apply for Sponsorship</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-light py-5" id="conferences">
+        <div class="container">
+            <h2 class="text-center section-title mb-4">Conference Sponsorship</h2>
+            <div class="card shadow mx-auto" style="max-width: 800px;">
+                <img src="https://plus.unsplash.com/premium_photo-1679547202671-f9dbbf466db4?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    class="card-img-top" alt="Conference">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Attend International Conferences</h5>
+                    <p class="card-text">We sponsor professionals to attend conferences in Europe, Canada, UAE & beyond.
+                        Our package includes air ticket, visa, and accommodation support.</p>
+                    <a href="" class="btn btn-outline-primary btn-sm apply-conference-btn">Apply Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <div id="authModal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content bg-white text-dark rounded-3">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="authModalTitle">Sign Up</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeAuthModal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="authForm" autocomplete="off">
+            <div class="mb-3">
+              <label for="authEmail" class="form-label">Email</label>
+              <input type="email" id="authEmail" class="form-control" required>
+            </div>
+            <div id="authNameField" class="mb-3" style="display: none;">
+              <label for="authName" class="form-label">Full Name</label>
+              <input type="text" id="authName" class="form-control">
+            </div>
+            <div class="mb-3 position-relative">
+              <label for="authPassword" class="form-label">Password</label>
+              <input type="password" id="authPassword" class="form-control" required autocomplete="new-password">
+              <span class="position-absolute top-50 end-0 translate-middle-y me-3" style="cursor:pointer;" onclick="togglePassword('authPassword', this)">
+                <i class="bi bi-eye-slash"></i>
+              </span>
+            </div>
+            <div id="confirmPasswordField" class="mb-3 position-relative" style="display: none;">
+              <label for="authConfirmPassword" class="form-label">Repeat Password</label>
+              <input type="password" id="authConfirmPassword" class="form-control" autocomplete="new-password">
+              <span class="position-absolute top-50 end-0 translate-middle-y me-3" style="cursor:pointer;" onclick="togglePassword('authConfirmPassword', this)">
+                <i class="bi bi-eye-slash"></i>
+              </span>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="authActionBtn">Sign Up</button>
+          </form>
+          <div id="authMsg" class="mt-2"></div>
+          <div class="text-center mt-3">
+            <a href="#" id="toggleAuth">Already have an account? Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDO5Bpeg0Ewg6lUzbIaI-Kp4wC9ET6OQfE",
+      authDomain: "visasponsor-e62c2.firebaseapp.com",
+      projectId: "visasponsor-e62c2",
+      storageBucket: "visasponsor-e62c2.appspot.com",
+      messagingSenderId: "179101134570",
+      appId: "1:179101134570:web:bea801f12c1a620717b193",
+      measurementId: "G-NE7T0PPG6K"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Modal references
+    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+
+    // Auth state
+    let isLogin = false;
+
+    // Auth modal toggle logic
+    const authModalTitle = document.getElementById('authModalTitle');
+    const authActionBtn = document.getElementById('authActionBtn');
+    const authMsg = document.getElementById('authMsg');
+    const authNameField = document.getElementById('authNameField');
+    const confirmPasswordField = document.getElementById('confirmPasswordField');
+    const toggleAuth = document.getElementById('toggleAuth');
+
+    function showLogin() {
+      isLogin = true;
+      authModalTitle.innerText = "Login";
+      authActionBtn.innerText = "Login";
+      authNameField.style.display = "none";
+      confirmPasswordField.style.display = "none";
+      toggleAuth.innerText = "Don't have an account? Sign Up";
+      authMsg.innerHTML = "";
+    }
+
+    function showSignUp() {
+      isLogin = false;
+      authModalTitle.innerText = "Sign Up";
+      authActionBtn.innerText = "Sign Up";
+      authNameField.style.display = "";
+      confirmPasswordField.style.display = "";
+      toggleAuth.innerText = "Already have an account? Login";
+      authMsg.innerHTML = "";
+    }
+
+    toggleAuth.onclick = (e) => {
+      e.preventDefault();
+      if (isLogin) showSignUp();
+      else showLogin();
+    };
+
+    // Password view toggle function
+    function togglePassword(id, el) {
+      let input = document.getElementById(id);
+      let icon = el.querySelector('i');
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("bi-eye-slash");
+        icon.classList.add("bi-eye");
+      } else {
+        input.type = "password";
+        icon.classList.remove("bi-eye");
+        icon.classList.add("bi-eye-slash");
+      }
+    }
+
+    // Utility to handle application navigation for each type
+    function handleApplication(type) {
+      const user = auth.currentUser;
+      if (!user) {
+        showSignUp();
+        authModal.show();
+        return;
+      }
+      // You would have different collections or flags for each type; here is a generic approach
+      let collectionName = "";
+      let defaultForm = "";
+      switch (type) {
+        case "loan":
+          collectionName = "loanApplications";
+          defaultForm = "/pages/application_form.html";
+          break;
+        case "scholarship":
+          collectionName = "scholarshipApplications";
+          defaultForm = "pages/application_form.html";
+          break;
+        case "diplomat":
+          collectionName = "diplomatApplications";
+          defaultForm = "pages/application_form.html";
+          break;
+        case "conference":
+          collectionName = "conferenceApplications";
+          defaultForm = "pages/application_form.html";
+          break;
+        default:
+          window.location.href = "pages/application_form.html";
+          return;
+      }
+      db.collection(collectionName).doc(user.uid).get().then(function(doc) {
+        if (doc.exists) {
+          const data = doc.data();
+          if (!data.progress || data.progress === 1) {
+            window.location.href = defaultForm;
+          } else if (data.progress === 2) {
+            window.location.href = defaultForm.replace(".html", "2.html");
+          } else if (data.progress === 3) {
+            window.location.href = "/pages/eligibility.html";
+          } else if (data.progress === 4) {
+            window.location.href = "/pages/dashboard.html";
+          } else {
+            window.location.href = defaultForm;
+          }
+        } else {
+          window.location.href = defaultForm;
+        }
+      });
+    }
+
+    // Get all "Apply" buttons by section and link to backend
+    document.querySelectorAll('.apply-loan-btn').forEach(button => {
+      button.onclick = function () { handleApplication("loan"); };
+    });
+    document.querySelectorAll('.apply-scholarship-btn').forEach(button => {
+      button.onclick = function () { handleApplication("scholarship"); };
+    });
+    document.querySelectorAll('.apply-diplomat-btn').forEach(button => {
+      button.onclick = function () { handleApplication("diplomat"); };
+    });
+    document.querySelectorAll('.apply-conference-btn').forEach(button => {
+      button.onclick = function () { handleApplication("conference"); };
+    });
+    // Hero "Start Building" button -> default to loan application
+    document.querySelectorAll('.apply-button').forEach(button => {
+      button.onclick = function (e) {
+        e.preventDefault();
+        handleApplication("loan");
+      };
+    });
+    // Navbar sign up/apply button
+    // (Removed the navbar-apply-btn since the new menu doesn't have it)
+
+    // Handle signup/login form
+    document.getElementById('authForm').onsubmit = function(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      const name = document.getElementById('authName').value;
+      const confirmPassword = document.getElementById('authConfirmPassword').value;
+
+      authMsg.innerHTML = "Processing...";
+
+      if (!isLogin && password !== confirmPassword) {
+        authMsg.innerHTML = '<span class="text-danger">Passwords do not match.</span>';
+        return;
+      }
+
+      if (isLogin) {
+        // Login
+        auth.signInWithEmailAndPassword(email, password)
+          .then((result) => {
+            authMsg.innerHTML = '<span class="text-success">Logged in!</span>';
+            setTimeout(() => {
+              authModal.hide();
+              window.location.reload();
+            }, 800);
+          })
+          .catch(error => {
+            authMsg.innerHTML = '<span class="text-danger">' + error.message + '</span>';
+          });
+      } else {
+        // Sign up
+        auth.createUserWithEmailAndPassword(email, password)
+          .then(result => result.user.updateProfile({ displayName: name }).then(() => result))
+          .then(async result => {
+            // Assign role as user
+            await db.collection("userRoles").doc(result.user.uid).set({ role: "user" });
+            authMsg.innerHTML = '<span class="text-success">Account created!</span>';
+            setTimeout(() => {
+              authModal.hide();
+              window.location.reload();
+            }, 800);
+          })
+          .catch(error => {
+            authMsg.innerHTML = '<span class="text-danger">' + error.message + '</span>';
+          });
+      }
+    };
+
+    // Close auth modal handler
+    document.getElementById('closeAuthModal').onclick = function() {
+      authModal.hide();
+    };
+
+    // User avatar and logout dropdown in navbar
+    function setNavbarUser(user) {
+      if (!document.getElementById('navbarUser')) return;
+      if (!user) {
+        document.getElementById('navbarUser').innerHTML = "";
+        return;
+      }
+      // Use photoURL or fallback to Dicebear avatar
+      const avatarUrl = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.displayName || user.email || 'User')}`;
+      document.getElementById('navbarUser').innerHTML = `
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="${avatarUrl}" alt="avatar" width="38" height="38" class="rounded-circle border border-2 border-light me-2">
+            <span class="d-none d-md-inline fw-bold">${user.displayName || user.email}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="#" id="goDashboard"><i class="bi bi-speedometer2 me-2"></i>Go Dashboard</a></li>
+            <li><span class="dropdown-item-text">${user.email}</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Logout</a></li>
+          </ul>
+        </div>
+      `;
+      document.getElementById('goDashboard').onclick = function(e) {
+        e.preventDefault();
+        window.location.href = "/pages/dashboard.html";
+      };
+
+      document.getElementById('logoutBtn').onclick = function() {
+        auth.signOut().then(() => {
+          window.location.href = "index.html";
+        });
+      };
+    }
+
+    // Listen for auth state and update navbar
+    auth.onAuthStateChanged(function(user) {
+      setNavbarUser(user);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visa Sponsorship Services - VisaFind</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="stylish/service_style.css">
+  <style>
+    .service-card,
+    .service-card h5,
+    .service-card p,
+    .service-card .btn {
+      color: #111 !important;
+    }
+    .service-card {
+      background: #fff !important;
+      box-shadow: 0 4px 24px rgba(44, 44, 44, 0.10), 0 1.5px 6px rgba(44, 44, 44, 0.09);
+    }
+    .service-card .btn-outline-primary {
+      color: #1766d9 !important;
+      border-color: #1766d9 !important;
+    }
+    .service-card .btn-outline-primary:hover,
+    .service-card .btn-outline-primary:focus {
+      background: #1766d9 !important;
+      color: #fff !important;
+      border-color: #1766d9 !important;
+    }
+    .service-icon {
+      font-size: 3em;
+      color: #1766d9;
+      margin-bottom: 0.6em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.2em;
+      min-width: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header / Navbar -->
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent position-absolute w-100 px-lg-5 px-2" style="z-index: 3;">
+      <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/index.html">
+          <img src="/pages/stylish/images/logo.png" alt="VisaFind Logo" style="width: 40px; height: 40px;">
+          <span class="navbar-brand fw-bold">VisaFind</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="mainNav">
+          <ul class="navbar-nav mb-2 mb-lg-0 gap-lg-5">
+            <li class="nav-item">
+              <a class="nav-link" href="/index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/services.html">Services</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/contact.html">Contact Us</a>
+            </li>
+          </ul>
+          <!-- User avatar and dropdown will be injected here -->
+          <div id="navbarUser" class="ms-3"></div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <!-- Services Section -->
+  <section class="services-hero position-relative min-vh-100 d-flex flex-column justify-content-center align-items-center py-5">
+    <div class="services-overlay"></div>
+    <div class="container position-relative z-2 py-5">
+      <h2 class="text-center mb-5 fw-bold text-white">Our Sponsorship Services</h2>
+      <div class="row justify-content-center g-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="service-card text-center shadow-sm p-4 rounded bg-white h-100 d-flex flex-column align-items-center">
+            <div class="service-icon mb-3">
+              <i class="bi bi-person-lines-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Job Visa Sponsorship</h5>
+            <p class="mb-3 small">Get connected to global employers offering skilled and unskilled job visa sponsorships, including roles for drivers, caregivers, nurses, mechanics, and developers.</p>
+            <button class="btn btn-outline-primary btn-sm mt-auto px-4" onclick="handleApplyNow()">Apply now</button>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="service-card text-center shadow-sm p-4 rounded bg-white h-100 d-flex flex-column align-items-center">
+            <div class="service-icon mb-3">
+              <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Scholarship Sponsorship</h5>
+            <p class="mb-3 small">Apply for international scholarships including Canada Graduate, UK Masters, EU Research Grants, and Asian Development Bank programs.</p>
+            <button class="btn btn-outline-primary btn-sm mt-auto px-4" onclick="handleApplyNow()">Apply now</button>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="service-card text-center shadow-sm p-4 rounded bg-white h-100 d-flex flex-column align-items-center">
+            <div class="service-icon mb-3">
+              <i class="bi bi-award-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Diplomats & Youth Programs</h5>
+            <p class="mb-3 small">Join Best Diplomats Global Youth Diplomat programs in the USA, Dubai, Malaysia and more with major sponsorship coverage.</p>
+            <button class="btn btn-outline-primary btn-sm mt-auto px-4" onclick="handleApplyNow()">Apply now</button>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="service-card text-center shadow-sm p-4 rounded bg-white h-100 d-flex flex-column align-items-center">
+            <div class="service-icon mb-3">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Conference Sponsorship</h5>
+            <p class="mb-3 small">We sponsor travel to international conferences in Europe, Canada, UAE, and more. Packages include visa, flight, and accommodation support.</p>
+            <button class="btn btn-outline-primary btn-sm mt-auto px-4" onclick="handleApplyNow()">Apply now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Visa Sponsorship Process Section -->
+  <section class="loan-lifecycle position-relative py-5">
+    <div class="services-overlay"></div>
+    <div class="container position-relative z-2">
+      <h2 class="text-center text-white fw-bold mb-5">APPLICATION AND APPROVAL PROCESS</h2>
+      <div class="row gy-5 justify-content-center">
+        <div class="col-12 col-md-6 col-lg-3 text-center">
+          <div class="lifecycle-step">
+            <div class="lifecycle-number">01</div>
+            <div class="lifecycle-icon mb-3">
+              <i class="bi bi-journal-text" style="font-size: 3em; color: #1766d9;"></i>
+            </div>
+            <h5 class="fw-bold text-white">Online Application</h5>
+            <p class="text-white-50 small">Submit your sponsorship/visa application with all required personal, academic, and travel information.</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3 text-center">
+          <div class="lifecycle-step">
+            <div class="lifecycle-number">02</div>
+            <div class="lifecycle-icon mb-3">
+              <i class="bi bi-file-earmark-check-fill" style="font-size: 3em; color: #1766d9;"></i>
+            </div>
+            <h5 class="fw-bold text-white">Document Verification</h5>
+            <p class="text-white-50 small">We review and verify your submitted documents and eligibility for your selected sponsorship program.</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3 text-center">
+          <div class="lifecycle-step">
+            <div class="lifecycle-number">03</div>
+            <div class="lifecycle-icon mb-3">
+              <i class="bi bi-people-fill" style="font-size: 3em; color: #1766d9;"></i>
+            </div>
+            <h5 class="fw-bold text-white">Interview/Screening</h5>
+            <p class="text-white-50 small">Shortlisted candidates may be invited for interviews or additional screening based on the program.</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3 text-center">
+          <div class="lifecycle-step">
+            <div class="lifecycle-number">04</div>
+            <div class="lifecycle-icon mb-3">
+              <i class="bi bi-award-fill" style="font-size: 3em; color: #1766d9;"></i>
+            </div>
+            <h5 class="fw-bold text-white">Sponsorship Approval</h5>
+            <p class="text-white-50 small">Successful applicants receive sponsorship approval, including guidance on visa, travel, and relocation steps.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white pt-5 pb-0">
+    <hr style="border-bottom: 10px solid white;">
+    <div class="container">
+      <div class="row footer-section text-center text-lg-start">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <h4 class="text-info">OUR SERVICES</h4>
+          <ul class="list-unstyled">
+            <li>Job Visa Sponsorship</li>
+            <li>Scholarship Sponsorship</li>
+            <li>Diplomats & Youth Programs</li>
+            <li>Conference Sponsorship</li>
+          </ul>
+        </div>
+        <div class="col-lg-6">
+          <h4 class="text-info">CONTACT US</h4>
+          <ul class="list-unstyled">
+            <li>+234 (0)906 995 1352</li>
+            <li>+234 (0)908 337 2240</li>
+            <li>support@visafind.com</li>
+            <li>www.visafind.com</li>
+            <li>123 International Plaza, Global City, World</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom text-center py-3 mt-4 bg-primary bg-opacity-75">
+        © 2025 VisaFind. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sign Up/Login Modal -->
+  <div id="authModal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content bg-white text-dark rounded-3">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="authModalTitle">Sign Up</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeAuthModal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="authForm" autocomplete="off">
+            <div class="mb-3">
+              <label for="authEmail" class="form-label">Email</label>
+              <input type="email" id="authEmail" class="form-control" required>
+            </div>
+            <div id="authNameField" class="mb-3">
+              <label for="authName" class="form-label">Full Name</label>
+              <input type="text" id="authName" class="form-control" required>
+            </div>
+            <div class="mb-3 position-relative">
+              <label for="authPassword" class="form-label">Password</label>
+              <input type="password" id="authPassword" class="form-control" required autocomplete="new-password">
+              <span class="position-absolute top-50 end-0 translate-middle-y me-3" style="cursor: pointer;" onclick="togglePassword('authPassword', this)">
+                <i class="bi bi-eye-slash"></i>
+              </span>
+            </div>
+            <div id="confirmPasswordField" class="mb-3 position-relative">
+              <label for="authConfirmPassword" class="form-label">Repeat Password</label>
+              <input type="password" id="authConfirmPassword" class="form-control" required autocomplete="new-password">
+              <span class="position-absolute top-50 end-0 translate-middle-y me-3" style="cursor: pointer;" onclick="togglePassword('authConfirmPassword', this)">
+                <i class="bi bi-eye-slash"></i>
+              </span>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="authActionBtn">Sign Up</button>
+          </form>
+          <div id="authMsg" class="mt-2"></div>
+          <div class="text-center mt-3">
+            <a href="#" id="toggleAuth">Already have an account? Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+     apiKey: "AIzaSyDJxhKkcxdDlk_Rg-QsKVJe3O_vouhtHWE",
+    authDomain: "softgap-734c8.firebaseapp.com",
+    projectId: "softgap-734c8",
+    storageBucket: "softgap-734c8.firebasestorage.app",
+    messagingSenderId: "304323517826",
+    appId: "1:304323517826:web:471b44277de7684fed039b",
+    measurementId: "G-5WV0K9S2Q6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Modal references
+    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+
+    // Auth state
+    let isLogin = false;
+
+    // Auth modal toggle logic
+    const authModalTitle = document.getElementById('authModalTitle');
+    const authActionBtn = document.getElementById('authActionBtn');
+    const authMsg = document.getElementById('authMsg');
+    const authNameField = document.getElementById('authNameField');
+    const confirmPasswordField = document.getElementById('confirmPasswordField');
+    const toggleAuth = document.getElementById('toggleAuth');
+
+    function showLogin() {
+      isLogin = true;
+      authModalTitle.innerText = "Login";
+      authActionBtn.innerText = "Login";
+      authNameField.style.display = "none";
+      confirmPasswordField.style.display = "none";
+      toggleAuth.innerText = "Don't have an account? Sign Up";
+      authMsg.innerHTML = "";
+    }
+
+    function showSignUp() {
+      isLogin = false;
+      authModalTitle.innerText = "Sign Up";
+      authActionBtn.innerText = "Sign Up";
+      authNameField.style.display = "";
+      confirmPasswordField.style.display = "";
+      toggleAuth.innerText = "Already have an account? Login";
+      authMsg.innerHTML = "";
+    }
+
+    toggleAuth.onclick = (e) => {
+      e.preventDefault();
+      if (isLogin) showSignUp();
+      else showLogin();
+    };
+
+    // Password view toggle function
+    function togglePassword(id, el) {
+      let input = document.getElementById(id);
+      let icon = el.querySelector('i');
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("bi-eye-slash");
+        icon.classList.add("bi-eye");
+      } else {
+        input.type = "password";
+        icon.classList.remove("bi-eye");
+        icon.classList.add("bi-eye-slash");
+      }
+    }
+
+    // Handle Apply Now button click
+    function handleApplyNow() {
+      const user = auth.currentUser;
+      if (user) {
+        db.collection('loanApplications').doc(user.uid).get().then(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            if (!data.progress || data.progress === 1) {
+              window.location.href = "/pages/application_form.html";
+            } else if (data.progress === 2) {
+              window.location.href = "/pages/application_form2.html";
+            } else if (data.progress === 3) {
+              window.location.href = "/pages/eligibility.html";
+            } else if (data.progress === 4) {
+              window.location.href = "/pages/dashboard.html";
+            }
+          } else {
+            window.location.href = "/pages/application_form.html";
+          }
+        }).catch(error => {
+          console.error("Error checking application progress:", error);
+          window.location.href = "/pages/application_form.html";
+        });
+      } else {
+        showSignUp();
+        authModal.show();
+      }
+    }
+
+    // Handle signup/login form
+    document.getElementById('authForm').onsubmit = function(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      const name = document.getElementById('authName').value;
+      const confirmPassword = document.getElementById('authConfirmPassword').value;
+
+      authMsg.innerHTML = "Processing...";
+
+      if (!isLogin && password !== confirmPassword) {
+        authMsg.innerHTML = '<span class="text-danger">Passwords do not match.</span>';
+        return;
+      }
+
+      if (isLogin) {
+        // Login
+        auth.signInWithEmailAndPassword(email, password)
+          .then(result => {
+            authMsg.innerHTML = '<span class="text-success">Logged in!</span>';
+            db.collection('loanApplications').doc(result.user.uid).get().then(doc => {
+              setTimeout(() => {
+                authModal.hide();
+                if (doc.exists) {
+                  const data = doc.data();
+                  if (!data.progress || data.progress === 1) {
+                    window.location.href = "/pages/application_form.html";
+                  } else if (data.progress === 2) {
+                    window.location.href = "/pages/application_form2.html";
+                  } else if (data.progress === 3) {
+                    window.location.href = "/pages/eligibility.html";
+                  } else if (data.progress === 4) {
+                    window.location.href = "/pages/dashboard.html";
+                  }
+                } else {
+                  window.location.href = "application_form.html";
+                }
+              }, 800);
+            }).catch(error => {
+              console.error("Error checking application progress:", error);
+              setTimeout(() => {
+                authModal.hide();
+                window.location.href = "application_form.html";
+              }, 800);
+            });
+          })
+          .catch(error => {
+            authMsg.innerHTML = '<span class="text-danger">' + error.message + '</span>';
+          });
+      } else {
+        // Sign up
+        auth.createUserWithEmailAndPassword(email, password)
+          .then(result => result.user.updateProfile({ displayName: name }).then(() => result))
+          .then(async result => {
+            await db.collection("userRoles").doc(result.user.uid).set({ role: "user" });
+            authMsg.innerHTML = '<span class="text-success">Account created!</span>';
+            setTimeout(() => {
+              authModal.hide();
+              window.location.href = "application_form.html";
+            }, 800);
+          })
+          .catch(error => {
+            authMsg.innerHTML = '<span class="text-danger">' + error.message + '</span>';
+          });
+      }
+    };
+
+    // Close auth modal handler
+    document.getElementById('closeAuthModal').onclick = function() {
+      authModal.hide();
+    };
+
+    // User avatar and logout dropdown in navbar
+    function setNavbarUser(user) {
+      if (!user) {
+        document.getElementById('navbarUser').innerHTML = "";
+        return;
+      }
+      const avatarUrl = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.displayName || user.email || 'User')}`;
+      document.getElementById('navbarUser').innerHTML = `
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="${avatarUrl}" alt="avatar" width="38" height="38" class="rounded-circle border border-2 border-light me-2">
+            <span class="d-none d-md-inline fw-bold">${user.displayName || user.email}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="/dashboard.html"><i class="bi bi-speedometer2 me-2"></i>Go Dashboard</a></li>
+            <li><span class="dropdown-item-text">${user.email}</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Logout</a></li>
+          </ul>
+        </div>
+      `;
+      document.getElementById('logoutBtn').onclick = function() {
+        auth.signOut().then(() => {
+          window.location.href = "index.html";
+        });
+      };
+    }
+
+    // Listen for auth state and update navbar
+    auth.onAuthStateChanged(function(user) {
+      setNavbarUser(user);
+    });
+  </script>
+</body>
+</html>

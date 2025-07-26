@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Visa/Sponsorship Dashboard - VisaFind</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      background:
+        linear-gradient(180deg, #3a277cdd 0%, #000a 100%),
+        url('/pages/stylish/images/background.jpg') center/cover no-repeat;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-blend-mode: darken;
+    }
+    .navbar {
+      background-color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      color: #111 !important;
+      font-weight: 700;
+    }
+    .navbar-brand:hover {
+      color: #1766d9 !important;
+    }
+    .navbar-nav .nav-link {
+      color: #111 !important;
+    }
+    .navbar-nav .nav-link:hover {
+      color: #1766d9 !important;
+    }
+    .dashboard-container {
+      max-width: 1000px;
+      margin: 90px auto 20px;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .dashboard-title {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .card {
+      border: none !important;
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+      background-color: #ffffff;
+      color: rgb(0, 0, 0);
+      font-weight: bold;
+      padding: 15px;
+      border-radius: 15px 15px 0 0;
+      border-bottom: 1px solid #eee;
+    }
+    .card-body p {
+      margin: 0.5rem 0;
+    }
+    .amount {
+      font-weight: bold;
+    }
+    .status-pending {
+      color: #dc3545;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .status-approved {
+      color: #28a745;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .status-paid {
+      color: #1766d9;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .pending-card {
+      background-color: #f8d7da !important;
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2) !important;
+    }
+    .approved-card {
+      background-color: #d4edda !important;
+      border: 1px solid #28a745 !important;
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2) !important;
+    }
+    .paid-card {
+      background-color: #dbeafe !important;
+      border: 1px solid #1766d9 !important;
+      box-shadow: 0 4px 12px rgba(23, 102, 217, 0.2) !important;
+    }
+    .footer-nav {
+      padding: 20px 0;
+      background-color: #f8f9fa;
+      text-align: center;
+      font-size: 0.9rem;
+      border-top: 1px solid #ddd;
+      margin-top: auto;
+    }
+    .footer-nav a {
+      color: #1766d9;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .btn-primary {
+      background-color: #1766d9;
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #1352ad;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 15px;
+      }
+      .dashboard-title {
+        font-size: 1.5rem;
+      }
+    }
+    .step-label {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+      color: #1766d9;
+    }
+    .app-status-label {
+      font-weight: bold;
+      padding: 6px 14px;
+      border-radius: 12px;
+      display: inline-block;
+      font-size: 0.99rem;
+    }
+    .status-pending-label { background: #ffe3e3; color: #dc3545; }
+    .status-approved-label { background: #e5fae5; color: #28a745; }
+    .status-paid-label { background: #e0e7ff; color: #1766d9; }
+    .btn-upload-disabled {
+      pointer-events: none;
+      opacity: 0.4;
+    }
+    .crypto-logo {
+      width:25px;
+      height:25px;
+      margin-right:8px;
+    }
+    .payment-divider {
+      border-top:2px dashed #ccc;
+      margin: 16px 0 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/index.html">
+        <img src="/pages/stylish/images/logo.png" style="width: 40px; height: 40px;" alt="">
+        <span class="fw-bold" style="color: #111;">Visa | Travel Sponsorship</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="mainNav">
+        <ul class="navbar-nav gap-3">
+          <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/pages/services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="/pages/contact.html">Contact Us</a></li>
+        </ul>
+        <div id="navbarUser" class="ms-3"></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard -->
+  <div class="dashboard-container">
+    <div class="text-end mb-3" id="userInfo"></div>
+    <div class="dashboard-title">Your Sponsorship Application Dashboard</div>
+    <div id="notLoggedIn" class="alert alert-warning" style="display: none;">
+      You must <a href="/index.html">login or signup</a> to view your dashboard.
+    </div>
+    <div id="dashboardContent" style="display: none;">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-4">
+        <div class="col">
+          <div class="card" id="applicationStatusCard">
+            <div class="card-header"><span class="step-label">Step 1:</span> Application Status</div>
+            <div class="card-body">
+              <p>
+                <span class="app-status-label status-pending-label" id="appStatusLabel">Pending</span>
+              </p>
+              <p id="appStatusMessage" style="margin-top:10px;"></p>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" id="credentialsCard">
+            <div class="card-header"><span class="step-label">Step 2:</span> Upload Your Credentials</div>
+            <div class="card-body">
+              <p>
+                <span id="credentialsStatus" class="badge bg-secondary">Not Uploaded</span>
+              </p>
+              <div id="credentialsActionArea"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" id="paymentStatusCard">
+            <div class="card-header"><span class="step-label">Step 3:</span> Payment</div>
+            <div class="card-body">
+              <div id="paymentButtonArea">
+                <span class="app-status-label" id="paymentStatusLabel">Not Paid</span>
+              </div>
+              <p id="paymentRemark" style="margin-top:10px;"></p>
+              <div class="mt-3 text-center">
+                <span class="fw-bold">Amount to pay: <span id="paymentButtonAmount" style="color:#1766d9">View</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" id="tripDateCard">
+            <div class="card-header">Your Trip Date</div>
+            <div class="card-body">
+              <p><span class="amount" id="tripDateValue">---</span></p>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" id="sponsorshipTypeCard">
+            <div class="card-header">Sponsorship Type</div>
+            <div class="card-body">
+              <p><span class="amount" id="sponsorshipTypeValue">---</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button class="btn btn-primary me-2" onclick="refreshDashboard()">Refresh</button>
+        <button class="btn btn-secondary me-2" onclick="window.location.href='/index.html'">Back to Home</button>
+        <button class="btn btn-primary" onclick="window.location.href='application_form.html'">Apply for Sponsorship</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="paymentModalLabel">Payment Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="paymentDetailsBody">
+          <!-- CRYPTO PAYMENT -->
+          <div class="mb-3 pb-2 border-bottom">
+            <!-- Bitcoin Wallet -->
+            <div class="mb-3">
+              <strong>Bitcoin Wallet:</strong>
+              <div class="d-flex align-items-center mt-1">
+                <span class="me-2" id="btcAddr">bc1qjphts266zpgv3uvawvtarqhkq7zc0en6j8ft4q</span>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary mt-2" onclick="copyText('btcAddr')">Copy</button>
+            </div>
+            <!-- Ethereum Wallet -->
+            <div class="mb-3">
+              <strong>Ethereum Wallet:</strong>
+              <div class="d-flex align-items-center mt-1">
+                <span class="me-2" id="ethAddr">0x0B4A1234C6Be8Db5c27D0EE84bA47A1dB598f199</span>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary mt-2" onclick="copyText('ethAddr')">Copy</button>
+            </div>
+            <!-- Solana Wallet -->
+            <div class="mb-3">
+              <strong>Solana Wallet:</strong>
+              <div class="d-flex align-items-center mt-1">
+                <span class="me-2" id="solAddr">3ATcAfhrjtGPwzJoukg3ymkme7qpJ68iKgpxukhP3Ed2</span>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary mt-2" onclick="copyText('solAddr')">Copy</button>
+            </div>
+          </div>
+          <div class="payment-divider"></div>
+          <!-- BANK PAYMENT -->
+          <h1>BANK PAYMENT</h1>
+          <div class="mb-2">
+            <strong>Account Holder:</strong> Idoko Oloche Sule 
+          </div>
+          <div class="mb-2">
+            <strong>Bank Name:</strong> Wells Fargo Bank
+          </div>
+          <div class="mb-2">
+            <strong>Account Number:</strong> <span id="accountNumber">40630255428749687</span>
+            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyAccountNumber()">Copy</button>
+          </div>
+          <div class="mb-2">
+            <strong>Payment Reference:</strong> <span id="paymentReference"></span>
+          </div>
+          <div class="mb-2">
+            <strong>Amount:</strong> <span id="paymentAmountDisplay">View</span>
+          </div>
+          <div class="alert alert-warning mt-3 small">
+            After payment, send proof of payment to support@visafind.com or upload in your dashboard.
+          </div>
+        </div>
+        <div class="modal-footer" id="paymentModalFooter">
+          <!-- Amount to be updated dynamically below the payment button -->
+          <div class="w-100 text-center">
+            <span class="fw-bold">Amount to pay: <span id="bottomPaymentAmount" style="color:#1766d9">View</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Footer -->
+  <div class="footer-nav">
+    Need help? <a href="contact.html">Contact Support</a> | <a href="index.html">Back to Home</a>
+  </div>
+
+  <!-- Firebase + Logic -->
+  <script>
+const firebaseConfig = {
+    apiKey: "AIzaSyDO5Bpeg0Ewg6lUzbIaI-Kp4wC9ET6OQfE",
+    authDomain: "visasponsor-e62c2.firebaseapp.com",
+    projectId: "visasponsor-e62c2",
+    storageBucket: "visasponsor-e62c2.firebasestorage.app",
+    messagingSenderId: "179101134570",
+    appId: "1:179101134570:web:bea801f12c1a620717b193",
+    measurementId: "G-NE7T0PPG6K"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+function setNavbarUser(user) {
+  if (!user) {
+    document.getElementById('navbarUser').innerHTML = "";
+    return;
+  }
+  const avatarUrl = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.displayName || user.email || 'User')}`;
+  document.getElementById('navbarUser').innerHTML = `
+    <div class="dropdown">
+      <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="${avatarUrl}" alt="avatar" width="38" height="38" class="rounded-circle border border-2 border-light me-2">
+        <span class="d-none d-md-inline fw-bold">${user.displayName || user.email}</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li><a class="dropdown-item" href="#" id="goDashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+        <li><a class="dropdown-item" href="#" id="goProfile"><i class="bi bi-person-circle me-2"></i>Profile</a></li>
+        <li><span class="dropdown-item-text">${user.email}</span></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Logout</a></li>
+      </ul>
+    </div>
+  `;
+  document.getElementById('goDashboard').onclick = (e) => {
+    e.preventDefault();
+    window.location.href = 'dashboard.html';
+  };
+  document.getElementById('goProfile').onclick = (e) => {
+    e.preventDefault();
+    window.location.href = 'profile.html';
+  };
+  document.getElementById('logoutBtn').onclick = () => {
+    auth.signOut().then(() => {
+      window.location.href = 'index.html';
+    });
+  };
+}
+
+function refreshDashboard() {
+  const user = auth.currentUser;
+  if (user) {
+    db.collection('loanApplications').doc(user.uid).get()
+      .then(doc => {
+        if (doc.exists) {
+          updateDashboard(doc);
+        } else {
+          window.alert("No sponsorship application found. Please apply.");
+        }
+      })
+      .catch(error => {
+        window.alert("Failed to refresh dashboard. Please try again.");
+      });
+  }
+}
+
+function sponsorshipLabel(val) {
+  const options = {
+    "driver": "Driver - Switzerland, UK, US, Canada",
+    "developer": "Full Stack Developer - Canada, USA, Hong Kong",
+    "family": "Family Location (Visa + housing fee 60% covered)",
+    "nurse": "Nurse - UK, US, Canada",
+    "mechanic": "Auto Mechanic - London, UK",
+    "caregiver": "Caregiver - USA",
+    "canada_scholarship": "2025 Canada Graduate Scholarship",
+    "uk_masters": "UK Masters Scholarship",
+    "eu_phd": "EU Research Grant for PhD Students",
+    "adb_asia": "Asian Development Bank Scholarship",
+    "diplomat": "Best Diplomats - Global Youth Diplomat",
+    "conference": "Conference Sponsorship"
+  };
+  return options[val] || val || "---";
+}
+
+function statusLabel(status) {
+  if (status === "approved" || status === true) return '<span class="app-status-label status-approved-label">Approved</span>';
+  if (status === "paid" || status === "payment" || status === "Payment") return '<span class="app-status-label status-paid-label">Payment Complete</span>';
+  return '<span class="app-status-label status-pending-label">Pending</span>';
+}
+
+function paymentStatusLabel(status) {
+  if (status === "paid" || status === "payment" || status === true) return '<span class="app-status-label status-paid-label">Paid</span>';
+  else if (status === "pending") return '<span class="app-status-label status-pending-label">Pending</span>';
+  else return '<span class="app-status-label status-pending-label">Not Paid</span>';
+}
+
+// Copy helpers
+function copyText(spanId) {
+  const text = document.getElementById(spanId).innerText;
+  navigator.clipboard.writeText(text);
+  alert('Copied to clipboard!');
+}
+function copyAccountNumber() {
+  copyText('accountNumber');
+}
+
+// Generate a payment reference for the user
+function getPaymentReference(user) {
+  let ref = user.email.split('@')[0].slice(-5).toUpperCase();
+  ref += "-" + user.uid.slice(0, 5).toUpperCase();
+  return ref;
+}
+
+// Set all amount views (modal and below button)
+function setPaymentAmountAll(amount) {
+  const val = (typeof amount !== "undefined" && amount !== null && amount !== "" && !isNaN(amount))
+    ? `$${amount}` : "View";
+  document.getElementById('paymentAmountDisplay').innerText = val;
+  document.getElementById('bottomPaymentAmount').innerText = val;
+  document.getElementById('paymentButtonAmount').innerText = val;
+}
+
+// Main dashboard logic
+function updateDashboard(doc) {
+    const data = doc.exists ? doc.data() : {};
+    const isApproved = data.isApproved;
+    const paymentStatus = data.paymentStatus || (data.isPaid ? "paid" : "pending");
+    const appStatus = (paymentStatus === "paid" || paymentStatus === "Payment") ? "paid" : (isApproved ? "approved" : "pending");
+    document.getElementById('appStatusLabel').outerHTML = statusLabel(appStatus);
+
+    let message = "";
+    if (appStatus === "pending") {
+      message = "Your application is under review. Please check back or contact support.";
+    } else if (appStatus === "approved") {
+      message = "Congratulations! Your application has been approved. Please proceed with payment if required.";
+    } else if (appStatus === "paid") {
+      message = "Payment received. Please see your trip date below for travel arrangements.";
+    }
+    document.getElementById('appStatusMessage').innerText = message;
+
+    // Credentials Upload
+    let credUploaded = data.credentialsUploaded || data.hasUploadedCredentials;
+    const credentialsBtnClass = isApproved
+      ? "btn btn-outline-primary btn-sm"
+      : "btn btn-outline-secondary btn-sm btn-upload-disabled";
+    const credentialsBtnAttr = isApproved
+      ? ""
+      : "disabled tabindex='-1' aria-disabled='true'";
+
+    if (credUploaded) {
+      document.getElementById('credentialsStatus').className = "badge bg-success";
+      document.getElementById('credentialsStatus').innerText = "Document Submitted";
+      document.getElementById('credentialsActionArea').innerHTML = "";
+    } else {
+      document.getElementById('credentialsStatus').className = isApproved ? "badge bg-secondary" : "badge bg-secondary";
+      document.getElementById('credentialsStatus').innerText = "Not Uploaded";
+      document.getElementById('credentialsActionArea').innerHTML =
+        `<a href="/pages/upload_credentials.html" class="${credentialsBtnClass}" ${credentialsBtnAttr}>Upload Now</a>
+        <div class="small mt-2" style="color:${isApproved ? '#28a745':'#dc3545'};">
+          ${isApproved ? "Please upload required documents here." : "Upload option only available after approval."}
+        </div>`;
+    }
+
+    // Step 3: Payment
+    let paymentButtonArea = document.getElementById('paymentButtonArea');
+    let amount = data.amountToPay || data.paymentAmount;
+    setPaymentAmountAll(amount);
+
+    if (credUploaded && appStatus === "approved") {
+      paymentButtonArea.innerHTML = `<button class="btn btn-success btn-sm" id="makePaymentBtn">Make Payment</button>`;
+      document.getElementById('paymentRemark').innerText = "Click the button to view payment details.";
+      document.getElementById('makePaymentBtn').onclick = function() {
+        // Show modal with payment details
+        const user = auth.currentUser;
+        if(user) {
+          document.getElementById('paymentReference').innerText = getPaymentReference(user);
+        }
+        setPaymentAmountAll(amount);
+        new bootstrap.Modal(document.getElementById('paymentModal')).show();
+      }
+    } else {
+      paymentButtonArea.innerHTML = paymentStatusLabel(paymentStatus);
+      document.getElementById('paymentRemark').innerText = appStatus === "paid"
+        ? "All fees have been paid. Please keep your payment receipt for verification."
+        : (credUploaded ? "Awaiting admin approval of your credentials." : (appStatus === "approved" ? "Document upload required to proceed." : "Payment will be enabled after document approval."));
+    }
+
+    // Trip Date
+    let tripDate = data.intendedArrival || data.tripDate || "---";
+    if (tripDate && tripDate !== "---") {
+      try {
+        const d = new Date(tripDate);
+        if (!isNaN(d)) {
+          tripDate = d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+      } catch(e){}
+    }
+    document.getElementById('tripDateValue').innerText = tripDate;
+
+    // Sponsorship Type
+    document.getElementById('sponsorshipTypeValue').innerText = sponsorshipLabel(data.sponsorshipType);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const userInfoElem = document.getElementById('userInfo');
+  auth.onAuthStateChanged(async user => {
+    if (!user) {
+      document.getElementById('dashboardContent').style.display = 'none';
+      document.getElementById('notLoggedIn').style.display = '';
+      userInfoElem.innerHTML = "";
+      setNavbarUser(null);
+      setTimeout(() => window.location.href = "/index.html", 2000);
+    } else {
+      setNavbarUser(user);
+      userInfoElem.innerHTML = `
+        <strong>${user.displayName || 'User'}</strong> (${user.email})
+        <button class="btn btn-sm btn-outline-danger ms-2" onclick="auth.signOut().then(() => { sessionStorage.clear(); location.reload(); })">Logout</button>
+      `;
+      try {
+        const doc = await db.collection('loanApplications').doc(user.uid).get();
+        if (doc.exists) {
+          const data = doc.data();
+          if (!data.progress || data.progress === 1) {
+            window.location.href = "/pages/application_form.html";
+            return;
+          } else if (data.progress === 2) {
+            window.location.href = "/pages/application_form2.html";
+            return;
+          } else if (data.progress === 3) {
+            window.location.href = "/pages/eligibility.html";
+            return;
+          }
+        }
+        document.getElementById('dashboardContent').style.display = '';
+        document.getElementById('notLoggedIn').style.display = 'none';
+        db.collection('loanApplications').doc(user.uid).onSnapshot(
+          doc => {
+            if (doc.exists) {
+              updateDashboard(doc);
+            } else {
+              document.getElementById('sponsorshipTypeValue').innerText = "---";
+              document.getElementById('appStatusLabel').innerText = "No Application";
+              window.alert("No sponsorship application found. Please apply.");
+            }
+          },
+          error => {
+            window.alert("Failed to load data. Please try refreshing the page.");
+          }
+        );
+      } catch (error) {
+        window.alert("Failed to load dashboard. Please try again.");
+      }
+    }
+  });
+});
+</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

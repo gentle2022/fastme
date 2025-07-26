@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Loan Repayment - SoftGap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      background: 
+        linear-gradient(180deg, #3a277cdd 0%, #000a 100%),
+        url('/pages/stylish/images/background.jpg') center/cover no-repeat;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-blend-mode: darken;
+    }
+    .navbar {
+      background-color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      color: #111 !important;
+      font-weight: 700;
+    }
+    .navbar-brand:hover {
+      color: #1766d9 !important;
+    }
+    .navbar-nav .nav-link {
+      color: #111 !important;
+    }
+    .navbar-nav .nav-link:hover {
+      color: #1766d9 !important;
+    }
+    .repay-container {
+      max-width: 600px;
+      margin: 90px auto 20px;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .repay-title {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .card {
+      border: none !important;
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+      background-color: #ffffff;
+      color: rgb(0, 0, 0);
+      font-weight: bold;
+      padding: 15px;
+      border-radius: 15px 15px 0 0;
+      border-bottom: 1px solid #eee;
+    }
+    .card-body p {
+      margin: 0.5rem 0;
+    }
+    .amount {
+      font-weight: bold;
+    }
+    .status-pending {
+      color: #dc3545;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .status-approved {
+      color: #28a745;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .footer-nav {
+      padding: 20px 0;
+      background-color: #f8f9fa;
+      text-align: center;
+      font-size: 0.9rem;
+      border-top: 1px solid #ddd;
+      margin-top: auto;
+    }
+    .footer-nav a {
+      color: #1766d9;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .btn-primary {
+      background-color: #1766d9;
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #1352ad;
+    }
+    @media (max-width: 768px) {
+      .repay-container {
+        padding: 15px;
+      }
+      .repay-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <img src="stylish/images/logo2.jpg" style="width: 40px; height: 40px;" alt="SoftGap Logo">
+        <span>SoftGap<br><small>Systems Limited</small></span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="mainNav">
+        <ul class="navbar-nav gap-3">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
+        </ul>
+        <div id="navbarUser" class="ms-3"></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Repay -->
+  <div class="repay-container">
+    <div class="repay-title">Loan Repayment</div>
+    <div id="notLoggedIn" class="alert alert-warning" style="display: none;">
+      You must <a href="/index.html">login or signup</a> to make a repayment.
+    </div>
+    <div id="noLoan" class="alert alert-warning" style="display: none;">
+      No loan application found. Please <a href="/application_form.html">apply for a loan</a>.
+    </div>
+    <div id="repayContent" style="display: none;">
+      <div class="card mb-4">
+        <div class="card-header">Loan Details</div>
+        <div class="card-body">
+          <p><strong>Loan Amount:</strong> <span class="amount" id="loanAmount">₦0.00</span></p>
+          <p><strong>Interest:</strong> <span class="amount" id="interest">₦0.00</span></p>
+          <p><strong>Total Due:</strong> <span class="amount" id="totalAmount">₦0.00</span></p>
+          <p><strong>Due Date:</strong> <span id="dueDate">Not calculated</span></p>
+          <p><strong>Status:</strong> <span id="loanStatus" class="status-pending">Pending</span></p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Make a Repayment</div>
+        <div class="card-body">
+          <form id="repayForm">
+            <div class="mb-3">
+              <label for="repayAmount" class="form-label">Repayment Amount (₦)</label>
+              <input type="number" class="form-control" id="repayAmount" min="1" step="0.01" required>
+            </div>
+            <div class="mb-3">
+              <label for="paymentMethod" class="form-label">Payment Method</label>
+              <select class="form-control" id="paymentMethod" required>
+                <option value="" disabled selected>Select a payment method</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="card">Credit/Debit Card</option>
+                <option value="ussd">USSD</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Submit Repayment</button>
+          </form>
+          <div id="repayMsg" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-nav">
+    Need help? <a href="contact.html">Contact Support</a> | <a href="index.html">Back to Home</a>
+  </div>
+
+  <!-- Firebase + Logic -->
+  <script>
+const firebaseConfig = {
+     apiKey: "AIzaSyDJxhKkcxdDlk_Rg-QsKVJe3O_vouhtHWE",
+    authDomain: "softgap-734c8.firebaseapp.com",
+    projectId: "softgap-734c8",
+    storageBucket: "softgap-734c8.firebasestorage.app",
+    messagingSenderId: "304323517826",
+    appId: "1:304323517826:web:471b44277de7684fed039b",
+    measurementId: "G-5WV0K9S2Q6"
+    };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+function setNavbarUser(user) {
+  if (!user) {
+    document.getElementById('navbarUser').innerHTML = "";
+    return;
+  }
+  const avatarUrl = user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(user.displayName || user.email || 'User')}`;
+  document.getElementById('navbarUser').innerHTML = `
+    <div class="dropdown">
+      <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="${avatarUrl}" alt="avatar" width="38" height="38" class="rounded-circle border border-2 border-light me-2">
+        <span class="d-none d-md-inline fw-bold">${user.displayName || user.email}</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li><a class="dropdown-item" href="/index.html"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+        <li><a class="dropdown-item" href="/profile.html"><i class="bi bi-person-circle me-2"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="/repay.html"><i class="bi bi-wallet2 me-2"></i>Repay</a></li>
+        <li><span class="dropdown-item-text">${user.email}</span></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Logout</a></li>
+      </ul>
+    </div>
+  `;
+  document.getElementById('logoutBtn').onclick = function() {
+    auth.signOut().then(() => {
+      sessionStorage.clear();
+      window.location.href = "/index.html";
+    });
+  };
+}
+
+function updateLoanDetails(doc) {
+  const data = doc.exists ? doc.data() : {};
+  const loanAmount = document.getElementById('loanAmount');
+  const interest = document.getElementById('interest');
+  const totalAmount = document.getElementById('totalAmount');
+  const dueDate = document.getElementById('dueDate');
+  const loanStatus = document.getElementById('loanStatus');
+
+  const eligibleLoan = Number(data.eligibleLoan || data.loanRequest || 0);
+  const interestAmount = Number(data.interest || 0);
+  const totalAmountDue = Number(data.totalAmount || 0);
+  const repaidAmount = Number(data.repaidAmount || 0);
+  const repaymentPeriod = Number(data.repaymentPeriod || 0);
+  const isApproved = !!data.isApproved;
+
+  loanAmount.innerText = `₦${eligibleLoan.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+  interest.innerText = `₦${interestAmount.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+  totalAmount.innerText = `₦${(totalAmountDue - repaidAmount).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+  loanStatus.textContent = isApproved ? 'Approved' : 'Pending';
+  loanStatus.classList.toggle('status-approved', isApproved);
+  loanStatus.classList.toggle('status-pending', !isApproved);
+
+  if (repaymentPeriod) {
+    const today = new Date();
+    const due = new Date(today);
+    due.setDate(today.getDate() + repaymentPeriod);
+    dueDate.innerText = due.toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+  } else {
+    dueDate.innerText = "Not calculated";
+  }
+
+  return { totalAmountDue, repaidAmount, isApproved };
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const repayForm = document.getElementById('repayForm');
+  const repayMsg = document.getElementById('repayMsg');
+
+  repayForm.onsubmit = async function(e) {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      repayMsg.innerHTML = '<span class="text-danger">You must be logged in to make a repayment.</span>';
+      console.error("No authenticated user found");
+      return;
+    }
+
+    const repayAmount = Number(document.getElementById('repayAmount').value);
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    console.log("Submitting repayment for UID:", user.uid, "Amount:", repayAmount, "Method:", paymentMethod);
+    repayMsg.innerHTML = "Processing...";
+
+    try {
+      const doc = await db.collection('loanApplications').doc(user.uid).get();
+      if (!doc.exists) {
+        repayMsg.innerHTML = '<span class="text-danger">No loan application found.</span>';
+        console.warn("No loan application found for user:", user.uid);
+        return;
+      }
+
+      const { totalAmountDue, repaidAmount, isApproved } = updateLoanDetails(doc);
+      if (!isApproved) {
+        repayMsg.innerHTML = '<span class="text-danger">Cannot repay a pending loan.</span>';
+        console.warn("Loan is not approved for user:", user.uid);
+        return;
+      }
+
+      if (repayAmount <= 0) {
+        repayMsg.innerHTML = '<span class="text-danger">Repayment amount must be greater than zero.</span>';
+        return;
+      }
+
+      if (repayAmount > (totalAmountDue - repaidAmount)) {
+        repayMsg.innerHTML = '<span class="text-danger">Repayment amount cannot exceed total due.</span>';
+        return;
+      }
+
+      const newRepaidAmount = repaidAmount + repayAmount;
+      await db.runTransaction(async transaction => {
+        const loanRef = db.collection('loanApplications').doc(user.uid);
+        const repaymentRef = loanRef.collection('repayments').doc();
+        transaction.set(repaymentRef, {
+          amount: repayAmount,
+          method: paymentMethod,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          status: 'pending'
+        });
+        transaction.update(loanRef, { repaidAmount: newRepaidAmount });
+      });
+
+      repayMsg.innerHTML = '<span class="text-success">Repayment submitted successfully! Awaiting confirmation.</span>';
+      repayForm.reset();
+      setTimeout(() => { repayMsg.innerHTML = ""; }, 2000);
+    } catch (error) {
+      console.error("Error processing repayment:", error.code, error.message);
+      repayMsg.innerHTML = `<span class="text-danger">Error processing repayment: ${error.message}. Please try again.</span>`;
+    }
+  };
+
+  auth.onAuthStateChanged(async user => {
+    if (!user) {
+      document.getElementById('repayContent').style.display = 'none';
+      document.getElementById('notLoggedIn').style.display = '';
+      document.getElementById('noLoan').style.display = 'none';
+      setNavbarUser(null);
+      setTimeout(() => window.location.href = "/index.html", 2000);
+    } else {
+      setNavbarUser(user);
+      document.getElementById('notLoggedIn').style.display = 'none';
+
+      db.collection('loanApplications').doc(user.uid).onSnapshot(
+        doc => {
+          if (doc.exists) {
+            document.getElementById('repayContent').style.display = '';
+            document.getElementById('noLoan').style.display = 'none';
+            updateLoanDetails(doc);
+          } else {
+            document.getElementById('repayContent').style.display = 'none';
+            document.getElementById('noLoan').style.display = '';
+            console.warn("No loan application found for user:", user.uid);
+          }
+        },
+        error => {
+          console.error("Error fetching loan data:", error);
+          document.getElementById('repayContent').style.display = 'none';
+          document.getElementById('noLoan').style.display = '';
+          window.alert("Failed to load loan data. Please try again.");
+        }
+      );
+    }
+  });
+});
+</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

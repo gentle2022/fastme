@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Application - Step 1 - SoftGap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: linear-gradient(135deg, #f0f4f8, #ffffff); font-family: 'Montserrat', Arial, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    .navbar { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+    .navbar .nav-link { color: #111 !important; transition: color 0.3s; }
+    .navbar .nav-link:hover { color: A#1766d9 !important; }
+    .loan-form-container { max-width: 900px; margin: 20px auto; background: #ffffff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); padding: 40px; flex: 1; }
+    .progress-container { margin-bottom: 20px; }
+    .progress { height: 8px; border-radius: 4px; background: #e9ecef; }
+    .progress-bar { background: #1766d9; transition: width 0.3s ease-in-out; }
+    .loan-form-title { text-align: center; font-weight: 800; font-size: 2.2rem; margin-bottom: 30px; color: #222; letter-spacing: 1px; }
+    .form-label { font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-control, .form-select { border: 1px solid #ced4da; border-radius: 10px; min-height: 42px; padding: 10px 12px; transition: border-color 0.3s, box-shadow 0.3s; }
+    .form-control:focus, .form-select:focus { border-color: #1766d9; box-shadow: 0 0 5px rgba(23, 102, 217, 0.3); outline: none; }
+    .form-control::placeholder { color: #888; }
+    .btn-next { background: #1766d9; color: #fff; font-weight: 700; border-radius: 10px; width: 200px; padding: 10px; border: none; transition: background 0.3s, transform 0.2s; }
+    .btn-next:hover { background: #1352ad; transform: translateY(-2px); }
+    .footer-nav { margin-top: auto; padding: 15px 0; background: #f8f9fa; text-align: center; border-top: 1px solid #eee; font-size: 0.85rem; color: #555; }
+    .footer-nav a { color: #1766d9; text-decoration: none; margin: 0 5px; }
+    .footer-nav a:hover { text-decoration: underline; }
+    @media (max-width: 991.98px) { .loan-form-container { padding: 20px; } .loan-form-title { font-size: 1.8rem; } }
+    @media (max-width: 767.98px) { .loan-form-container { padding: 15px; margin: 10px auto; } .loan-form-title { font-size: 1.5rem; } .btn-next { width: 100%; } .row > * { flex: 0 0 100%; max-width: 100%; } }
+  </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent position-absolute w-100 px-lg-5 px-2" style="z-index:3;">
+      <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+          <img src="/pages/stylish/images/logo.png" alt="SoftGap Logo" style="width:40px; height:40px;">
+          <span class="fw-bold" style="color: #111;">Visa | Travel Sponsorship</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="mainNav">
+          <ul class="navbar-nav mb-2 mb-lg-0 gap-lg-5">
+            <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/pages/services.html">Services</a></li>
+            <li class="nav-item"><a class="nav-link" href="/pages/contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <div class="loan-form-container">
+    <div class="progress-container">
+      <div class="progress-step form-step">Step 1 of 4</div>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+    <div class="loan-form-title">VISA|TRAVEL SPONSORSHIP</div>
+    <div id="userInfo" class="mb-4"></div>
+    <form id="bioForm" autocomplete="off">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="surname">Surname</label>
+          <input type="text" class="form-control" id="surname" placeholder="Enter your surname" required autocomplete="off">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="address">Home Address</label>
+          <input type="text" class="form-control" id="address" placeholder="Enter your address" required autocomplete="off">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="firstname">First Name</label>
+          <input type="text" class="form-control" id="firstname" placeholder="Enter your first name" required autocomplete="off">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="phone">Telephone No.</label>
+          <input type="tel" class="form-control" id="phone" placeholder="e.g., +234 901 234 5678" required autocomplete="off">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="othername">Other Name (Optional)</label>
+          <input type="text" class="form-control" id="othername" placeholder="Enter other name (if any)" autocomplete="off">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" class="form-control" id="email" placeholder="e.g., example@easytravel.com" required autocomplete="off">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="dob">Date of Birth</label>
+          <input type="date" class="form-control" id="dob" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="maritalStatus">Marital Status</label>
+          <select class="form-select" id="maritalStatus" required>
+            <option value="">Select your status</option>
+            <option>Married</option>
+            <option>Single</option>
+            <option>Divorced</option>
+            <option>Widow/Widower</option>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center mt-4">
+        <button type="button" id="nextBtn" class="btn btn-next">Next</button>
+      </div>
+      <div id="formMsg" class="mt-3"></div>
+    </form>
+    <div id="notLoggedIn" class="alert alert-warning" style="display:none;">
+      You must <a href="index.html">login or signup</a> to apply for a loan.
+    </div>
+  </div>
+  <div class="footer-nav">
+    Need help? <a href="contact.html">Contact Support</a> | <a href="index.html">Back to Home</a>
+  </div>
+  <!-- Firebase config -->
+  <script>
+   const firebaseConfig = {
+    apiKey: "AIzaSyDO5Bpeg0Ewg6lUzbIaI-Kp4wC9ET6OQfE",
+    authDomain: "visasponsor-e62c2.firebaseapp.com",
+    projectId: "visasponsor-e62c2",
+    storageBucket: "visasponsor-e62c2.firebasestorage.app",
+    messagingSenderId: "179101134570",
+    appId: "1:179101134570:web:bea801f12c1a620717b193",
+    measurementId: "G-NE7T0PPG6K"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Resume logic: on load, check user and application progress, and redirect to the correct step!
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        document.getElementById('bioForm').style.display = 'none';
+        document.getElementById('notLoggedIn').style.display = '';
+        document.getElementById('userInfo').innerHTML = "";
+        setTimeout(() => window.location.href = "/index.html", 2000);
+      } else {
+        // Check progress
+        const doc = await db.collection('loanApplications').doc(user.uid).get();
+        if (doc.exists) {
+          const data = doc.data();
+          // If user already went past step 1, redirect to the correct step
+          if (data.progress === 2) {
+            window.location.href = "application_form2.html";
+            return;
+          } else if (data.progress === 3) {
+            window.location.href = "eligibility.html";
+            return;
+          } else if (data.progress === 4) {
+            window.location.href = "dashboard.html";
+            return;
+          }
+          // If user is still on step 1, prefill data if any
+          document.getElementById('surname').value = data.surname || '';
+          document.getElementById('firstname').value = data.firstname || '';
+          document.getElementById('othername').value = data.othername || '';
+          document.getElementById('address').value = data.address || '';
+          document.getElementById('phone').value = data.phone || '';
+          document.getElementById('email').value = data.email || '';
+          document.getElementById('dob').value = data.dob || '';
+          document.getElementById('maritalStatus').value = data.maritalStatus || '';
+        }
+        document.getElementById('bioForm').style.display = '';
+        document.getElementById('notLoggedIn').style.display = 'none';
+        document.getElementById('userInfo').innerHTML = `
+          <strong>Logged in as:</strong> ${user.displayName || ""} (${user.email})
+          <button class="btn btn-link p-0 ms-2" id="logoutBtn">Logout</button>
+        `;
+        document.getElementById('logoutBtn').onclick = async function() {
+          await auth.signOut();
+          sessionStorage.clear();
+          window.location.reload();
+        };
+      }
+    });
+
+    document.getElementById('nextBtn').onclick = async function() {
+      const bioForm = document.getElementById('bioForm');
+      if (!bioForm.checkValidity()) {
+        bioForm.reportValidity();
+        return;
+      }
+
+      const bioData = {
+        surname: document.getElementById('surname').value.trim(),
+        firstname: document.getElementById('firstname').value.trim(),
+        othername: document.getElementById('othername').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        dob: document.getElementById('dob').value,
+        maritalStatus: document.getElementById('maritalStatus').value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        progress: 1 // Mark step 1 as completed
+      };
+
+      const user = auth.currentUser;
+      if (!user) {
+        document.getElementById('formMsg').innerHTML = '<span class="text-danger">You must be logged in to submit the form.</span>';
+        return;
+      }
+
+      try {
+        document.getElementById('formMsg').innerHTML = "Saving...";
+        await db.collection('loanApplications').doc(user.uid).set(bioData, { merge: true });
+        // Move user to next step and mark progress
+        await db.collection('loanApplications').doc(user.uid).update({ progress: 2 });
+        window.location.href = "application_form2.html";
+      } catch (error) {
+        document.getElementById('formMsg').innerHTML = `<span class="text-danger">Error saving data: ${error.message}</span>`;
+      }
+    };
+  </script>
+</body>
+</html>
